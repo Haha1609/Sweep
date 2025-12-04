@@ -1,0 +1,188 @@
+/*
+ * Copyright (c) 2020 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+#include <input/processors.dtsi>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <dt-bindings/zmk/mouse.h>
+#include <behaviors/mouse_keys.dtsi>
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/pointing.h>
+
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 1200  // 600
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 900   // mousescroll SPEED
+
+&mmv_input_listener { input-processors = <&zip_xy_scaler 2 1>; };
+
+&msc_input_listener { input-processors = <&zip_scroll_scaler 2 1>; };
+
+&msc {
+    acceleration-exponent = <1>;      // 0
+    time-to-max-speed-ms = <100>;       // 300
+    delay-ms = <0>;                   // 0
+};
+
+&mmv {
+    time-to-max-speed-ms = <500>;
+    acceleration-exponent = <1>;
+    trigger-period-ms = <16>;
+};
+
+&soft_off {
+    hold-time-ms = <3000>; // Only turn off it the key is held for 3 seconds or longer.
+};
+
+&mt {
+    tapping-term-ms = <300>;
+    flavor = "tap-preferred";
+};
+
+&lt { tapping-term-ms = <300>; };
+
+/ {
+    behaviors {
+        Scroll_D_U: Scroll_D_U {
+            compatible = "zmk,behavior-sensor-rotate";
+            label = "SCROLL_D_U";
+            #sensor-binding-cells = <0>;
+            bindings = <&msc SCRL_DOWN>, <&msc SCRL_UP>;
+
+            tap-ms = <20>;
+        };
+
+        TD01: TD01 {
+            compatible = "zmk,behavior-tap-dance";
+            label = "TD01";
+            #binding-cells = <0>;
+            bindings = <&kp MINUS>, <&kp PERIOD>;
+        };
+
+        Scroll_U_D: Scroll_U_D {
+            compatible = "zmk,behavior-sensor-rotate";
+            label = "SCROLL_U_D";
+            #sensor-binding-cells = <0>;
+            bindings = <&msc SCRL_UP>, <&msc SCRL_DOWN>;
+
+            tap-ms = <20>;
+        };
+
+        Scroll_LR: Scroll_LR {
+            compatible = "zmk,behavior-sensor-rotate";
+            label = "SCROLL_LR";
+            #sensor-binding-cells = <0>;
+            bindings = <&msc SCRL_LEFT>, <&msc SCRL_RIGHT>;
+
+            tap-ms = <20>;
+        };
+
+        Scroll_RL: Scroll_RL {
+            compatible = "zmk,behavior-sensor-rotate";
+            label = "SCROLL_RL";
+            #sensor-binding-cells = <0>;
+            bindings = <&msc SCRL_RIGHT>, <&msc SCRL_LEFT>;
+
+            tap-ms = <20>;
+        };
+
+        mouse_DU: mouse_DU {
+            compatible = "zmk,behavior-sensor-rotate";
+            label = "MOUSE_DU";
+            #sensor-binding-cells = <0>;
+            bindings = <&mmv MOVE_DOWN>, <&mmv MOVE_UP>;
+        };
+
+        mouse_RL: mouse_RL {
+            compatible = "zmk,behavior-sensor-rotate";
+            label = "MOUSE_RL";
+            #sensor-binding-cells = <0>;
+            bindings = <&mmv MOVE_RIGHT>, <&mmv MOVE_LEFT>;
+        };
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            display-name = "Default Layer";
+            bindings = <
+&kp Q  &kp W  &kp E  &kp R      &kp T     &kp Y      &kp U     &kp I      &kp O    &kp P
+&kp A  &kp S  &kp D  &kp F      &kp G     &kp H      &kp J     &kp K      &kp L    &kp SEMI
+&kp Z  &kp X  &kp C  &kp V      &kp B     &kp N      &kp M     &kp COMMA  &kp DOT  &kp FSLH
+                     &kp LCTRL  &kp LGUI  &kp SPACE  &kp BSPC
+            >;
+
+            sensor-bindings = <&Scroll_D_U>, <&Scroll_RL>;
+        };
+
+        lower_layer {
+            display-name = "Lower Layer";
+            bindings = <
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+                        &trans  &trans  &trans  &trans
+            >;
+
+            sensor-bindings =
+                <&inc_dec_kp DOWN UP_ARROW>,
+                <&inc_dec_kp RIGHT LEFT>;
+        };
+
+        raise_layer {
+            display-name = "Raise Layer";
+            bindings = <
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+                        &trans  &trans  &trans  &trans
+            >;
+
+            sensor-bindings =
+                <&inc_dec_kp C_NEXT C_PREVIOUS>,
+                <&inc_dec_kp C_VOL_DN C_VOL_UP>;
+        };
+
+        layer_3 {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+                        &trans  &trans  &trans  &trans
+            >;
+
+            sensor-bindings =
+                <&inc_dec_kp C_VOLUME_DOWN C_VOLUME_UP>,
+                <&inc_dec_kp C_VOLUME_UP C_VOLUME_DOWN>;
+        };
+
+        layer_4 {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+                        &trans  &trans  &trans  &trans
+            >;
+        };
+
+        layer_5 {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+                        &trans  &trans  &trans  &trans
+            >;
+        };
+
+        layer_6 {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+                        &trans  &trans  &trans  &trans
+            >;
+        };
+    };
+};
